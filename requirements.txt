@@ -2,3 +2,7 @@ openai
 python-dotenv
 flask
 flask-cors
+PyPDF2
+python-docx
+pytesseract
+Pillow
