@@ -1,3 +1,4 @@
+from azure.storage.blob import BlobServiceClient
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from generator import DeliverableGenerator
@@ -43,6 +44,22 @@ def extract_text_from_image(file_path):
     image = Image.open(file_path)
     return pytesseract.image_to_string(image)
 
+
+# Azure Blob Storage configuration (set your connection string and container name)
+AZURE_CONNECTION_STRING = os.getenv("AZURE_BLOB_CONNECTION_STRING", "<your-connection-string>")
+AZURE_CONTAINER_NAME = os.getenv("AZURE_BLOB_CONTAINER_NAME", "<your-container-name>")
+
+def upload_to_blob_storage(file_path, blob_name=None):
+    """Uploads a file to Azure Blob Storage and returns the blob URL."""
+    blob_service_client = BlobServiceClient.from_connection_string(AZURE_CONNECTION_STRING)
+    container_client = blob_service_client.get_container_client(AZURE_CONTAINER_NAME)
+    if not blob_name:
+        blob_name = os.path.basename(file_path)
+    with open(file_path, "rb") as data:
+        container_client.upload_blob(name=blob_name, data=data, overwrite=True)
+    blob_url = f"{container_client.url}/{blob_name}"
+    return blob_url
+
 @app.route("/extract", methods=["POST"])
 def extract():
     """Extract text from uploaded file (PDF, DOCX, JPEG, PNG)."""
@@ -68,10 +85,12 @@ def extract():
                 text = extract_text_from_image(file_path)
             else:
                 return jsonify({"success": False, "error": "Unsupported file type"}), 400
+            # Upload file to Azure Blob Storage
+            blob_url = upload_to_blob_storage(file_path, filename)
         except Exception as e:
             return jsonify({"success": False, "error": f"Extraction failed: {e}"}), 500
 
-    return jsonify({"success": True, "text": text}), 200
+    return jsonify({"success": True, "text": text, "blob_url": blob_url}), 200
 
 
 @app.route("/health", methods=["GET"])
@@ -132,8 +151,9 @@ def generate():
         )
 
         # Generate content
+        print('combined_prompt=',combined_prompt)
         content = generator.generate_deliverable(combined_prompt)
-
+        print('content=',content)
         return jsonify({
             "success": True,
             "content": content
@@ -148,4 +168,4 @@ def generate():
 
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5000)
+    app.run(debug=False, port=5000)
