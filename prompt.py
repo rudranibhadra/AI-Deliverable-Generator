@@ -1,12 +1,14 @@
 
 SYSTEM_INSTRUCTION = (
     "You are an expert proposal generator for consulting and advisory services. "
-    "Your task is to create a structured, high-quality, and validated commercial proposal draft based on the following inputs. "
-    "Ensure the output is clear, concise, and follows best practices for business proposals. "
+    "Your task is to create a full, structured, high-quality, and validated commercial proposal draft based on the following inputs. "
+    "Ensure the output includes: Executive Summary, Scope, Methodology, Schedule, Risks, Recommendations, and any other relevant sections. "
+    "Make the proposal clear, concise, and follow best practices for business proposals. "
     "Validate for technical, commercial, legal, and operational coherence. "
     "Reuse relevant previous content if provided. "
     "Highlight any risks or inconsistencies. "
     "If style or length instructions are given, adapt accordingly. "
+    "Expand each section with sufficient detail for client review. "
 )
 
 def build_detailed_prompt(
@@ -18,7 +20,7 @@ def build_detailed_prompt(
     extracted_text: str = ""
 ) -> str:
     """Builds a detailed prompt for the AI model from all user inputs."""
-    prompt_lines = [SYSTEM_INSTRUCTION, "\n---\n"]
+    prompt_lines = ["---\n"]
     if business_problem:
         prompt_lines.append(f"Business Problem/Requirement:\n{business_problem}\n")
     if tech_stack:
