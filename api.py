@@ -106,7 +106,8 @@ def generate():
     Expected JSON payload:
     {
         "prompt": "Your request here",
-        "extracted_text": "(optional) extracted text from file"
+        "extracted_text": "(optional) extracted text from file",
+        "type": "(optional) summary | roadmap | architecture | data-schema"
     }
     
     Returns:
@@ -131,6 +132,7 @@ def generate():
         tech_stack = data.get("tech_stack", "").strip()
         time_constraint = data.get("time_constraint", "").strip()
         resource_constraints = data.get("resource_constraints", "").strip()
+        deliverable_type = data.get("type", "").strip().lower()  # NEW
 
         if not (user_prompt or business_problem or tech_stack or time_constraint or resource_constraints or extracted_text):
             return jsonify({
@@ -138,22 +140,21 @@ def generate():
                 "error": "At least one input field must be provided."
             }), 400
 
-
-
-        # Build the detailed prompt using prompt.py
+        # Build the detailed prompt using prompt.py, now including deliverable_type
         combined_prompt = build_detailed_prompt(
             business_problem=business_problem,
             tech_stack=tech_stack,
             time_constraint=time_constraint,
             resource_constraints=resource_constraints,
             user_prompt=user_prompt,
-            extracted_text=extracted_text
+            extracted_text=extracted_text,
+            deliverable_type=deliverable_type  # Pass to prompt builder
         )
 
         # Generate content
-        print('combined_prompt=',combined_prompt)
+        print('combined_prompt=', combined_prompt)
         content = generator.generate_deliverable(combined_prompt)
-        print('content=',content)
+        print('content=', content)
         return jsonify({
             "success": True,
             "content": content
@@ -167,5 +168,68 @@ def generate():
         }), 500
 
 
+@app.route("/deliverable", methods=["GET"])
+def deliverable():
+    """
+    Returns a sample deliverable JSON based on the 'type' query parameter.
+    Supported types: summary, roadmap, architecture, data-schema
+    """
+    deliverable_type = request.args.get("type", "").strip().lower()
+    if deliverable_type == "summary":
+        return jsonify({
+            "executive-summary": "test-executive-summary",
+            "problem-definition": "test-problem-definition",
+            "functional-requirements": [
+                {
+                    "user-story": "name of user story1",
+                    "description": "description of user story1",
+                    "acceptance-criteria": "acceptance criteria of story1"
+                },
+                {
+                    "user-story": "name of user story2",
+                    "description": "description of user story2",
+                    "acceptance-criteria": "acceptance criteria of story2"
+                }
+            ]
+        }), 200
+    elif deliverable_type == "roadmap":
+        return jsonify({
+            "summary": "sample delivery plan summary with scope per milestone, success criterias etc",
+            "dependencies": "sample dependencies and assumptions",
+            "risks-mitigation": "sample risks and mitigation"
+        }), 200
+    elif deliverable_type == "architecture":
+        return jsonify({
+            "summary": "sample technical plan",
+            "tech": [
+                {"type": "infrastructure", "name": "azure web-apps"},
+                {"type": "db", "name": "mongodb"}
+            ],
+            "api design": [
+                {
+                    "endpoint": "endpoint",
+                    "endpoint-description": "description of endpoint",
+                    "payload-format": "sample payload-format",
+                    "response-body-format": "sample json of response"
+                }
+            ]
+        }), 200
+    elif deliverable_type == "data-schema":
+        return jsonify({
+            "summary": "sample summary of data design",
+            "data-schema": [
+                {
+                    "db-name": "sample db name",
+                    "table-name": "sample table name",
+                    "table-description": "sample table description",
+                    "columns": [
+                        {"col": "colname", "type": "bool"}
+                    ]
+                }
+            ]
+        }), 200
+    else:
+        return jsonify({"error": "Invalid or missing 'type' parameter"}), 400
+    
 if __name__ == "__main__":
     app.run(debug=False, port=5000)
