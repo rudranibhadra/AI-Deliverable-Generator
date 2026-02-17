@@ -21,17 +21,9 @@ CORS(app)
 from dotenv import load_dotenv
 load_dotenv()
 
-# AZURE_OPENAI_KEY = os.getenv("AZURE_OPENAI_KEY")
-# AZURE_OPENAI_ENDPOINT = os.getenv("AZURE_OPENAI_ENDPOINT")
-# AZURE_OPENAI_DEPLOYMENT = os.getenv("AZURE_OPENAI_DEPLOYMENT")
-# AZURE_DALL_E_DEPLOYMENT = os.getenv("AZURE_DALL_E_DEPLOYMENT")
 
 # Initialize the generator
 generator = DeliverableGenerator()
-    # openai_key=AZURE_OPENAI_KEY,
-    # openai_endpoint=AZURE_OPENAI_ENDPOINT,
-    # openai_deployment=AZURE_OPENAI_DEPLOYMENT,
-    # dalle_deployment=AZURE_DALL_E_DEPLOYMENT
 
 
 # Configure logging
