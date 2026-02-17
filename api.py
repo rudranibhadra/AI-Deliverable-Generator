@@ -175,61 +175,37 @@ def deliverable():
     Supported types: summary, roadmap, architecture, data-schema
     """
     deliverable_type = request.args.get("type", "").strip().lower()
-    if deliverable_type == "summary":
-        return jsonify({
-            "executive-summary": "test-executive-summary",
-            "problem-definition": "test-problem-definition",
-            "functional-requirements": [
-                {
-                    "user-story": "name of user story1",
-                    "description": "description of user story1",
-                    "acceptance-criteria": "acceptance criteria of story1"
-                },
-                {
-                    "user-story": "name of user story2",
-                    "description": "description of user story2",
-                    "acceptance-criteria": "acceptance criteria of story2"
-                }
-            ]
-        }), 200
-    elif deliverable_type == "roadmap":
-        return jsonify({
-            "summary": "sample delivery plan summary with scope per milestone, success criterias etc",
-            "dependencies": "sample dependencies and assumptions",
-            "risks-mitigation": "sample risks and mitigation"
-        }), 200
-    elif deliverable_type == "architecture":
-        return jsonify({
-            "summary": "sample technical plan",
-            "tech": [
-                {"type": "infrastructure", "name": "azure web-apps"},
-                {"type": "db", "name": "mongodb"}
-            ],
-            "api design": [
-                {
-                    "endpoint": "endpoint",
-                    "endpoint-description": "description of endpoint",
-                    "payload-format": "sample payload-format",
-                    "response-body-format": "sample json of response"
-                }
-            ]
-        }), 200
-    elif deliverable_type == "data-schema":
-        return jsonify({
-            "summary": "sample summary of data design",
-            "data-schema": [
-                {
-                    "db-name": "sample db name",
-                    "table-name": "sample table name",
-                    "table-description": "sample table description",
-                    "columns": [
-                        {"col": "colname", "type": "bool"}
-                    ]
-                }
-            ]
-        }), 200
-    else:
+    business_problem = request.args.get("business_problem", "")
+    tech_stack = request.args.get("tech_stack", "")
+    time_constraint = request.args.get("time_constraint", "")
+    resource_constraints = request.args.get("resource_constraints", "")
+
+    PROMPT_FILES = {
+        "summary": "prompts/summary_prompt.txt",
+        "roadmap": "prompts/roadmap_prompt.txt",
+        "architecture": "prompts/architecture_prompt.txt",
+        "data-schema": "prompts/data_schema_prompt.txt"
+    }
+
+    if deliverable_type not in PROMPT_FILES:
         return jsonify({"error": "Invalid or missing 'type' parameter"}), 400
+
+    # Load the prompt template
+    prompt_path = PROMPT_FILES[deliverable_type]
+    with open(prompt_path, "r", encoding="utf-8") as f:
+        prompt_template = f.read()
+
+    # Fill in the template with user/context values
+    prompt = prompt_template.format(
+        business_problem=business_problem,
+        tech_stack=tech_stack,
+        time_constraint=time_constraint,
+        resource_constraints=resource_constraints
+    )
+
+    # Pass the prompt to the model
+    content = generator.generate_deliverable(prompt)
+    return jsonify({"success": True, "content": content}), 200
     
 if __name__ == "__main__":
     app.run(debug=False, port=5000)
