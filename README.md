@@ -16,6 +16,17 @@ This project provides a Flask-based API for generating business deliverables (su
 
 ---
 
+### .env file parameters:
+
+AZURE_OPENAI_KEY=
+AZURE_OPENAI_ENDPOINT=
+AZURE_OPENAI_DEPLOYMENT=gpt-4
+AZURE_BLOB_CONNECTION_STRING=
+AZURE_BLOB_CONTAINER_NAME=
+AZURE_DALL_E_DEPLOYMENT=dall-e-3
+
+---
+
 ## How It Works
 
 1. **Configuration Loading**

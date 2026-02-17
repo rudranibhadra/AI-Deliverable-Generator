@@ -49,7 +49,6 @@ class DeliverableGenerator:
         }
         payload = {
             "prompt": prompt,
-            "deployment": deployment,
             "n": 1
         }
         try:
