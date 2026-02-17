@@ -11,12 +11,28 @@ from PyPDF2 import PdfReader
 from docx import Document
 from PIL import Image
 import pytesseract
+import requests
+from dotenv import load_dotenv
+load_dotenv()
 
 app = Flask(__name__)
 CORS(app)
 
+from dotenv import load_dotenv
+load_dotenv()
+
+# AZURE_OPENAI_KEY = os.getenv("AZURE_OPENAI_KEY")
+# AZURE_OPENAI_ENDPOINT = os.getenv("AZURE_OPENAI_ENDPOINT")
+# AZURE_OPENAI_DEPLOYMENT = os.getenv("AZURE_OPENAI_DEPLOYMENT")
+# AZURE_DALL_E_DEPLOYMENT = os.getenv("AZURE_DALL_E_DEPLOYMENT")
+
 # Initialize the generator
 generator = DeliverableGenerator()
+    # openai_key=AZURE_OPENAI_KEY,
+    # openai_endpoint=AZURE_OPENAI_ENDPOINT,
+    # openai_deployment=AZURE_OPENAI_DEPLOYMENT,
+    # dalle_deployment=AZURE_DALL_E_DEPLOYMENT
+
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -203,9 +219,21 @@ def deliverable():
         resource_constraints=resource_constraints
     )
 
-    # Pass the prompt to the model
+    # Generate text deliverable
     content = generator.generate_deliverable(prompt)
-    return jsonify({"success": True, "content": content}), 200
+
+    # Generate image (using DALL·E 3)
+    image_prompt = (
+    f"Draw a clear and minimal architecture diagram for the following business problem: {business_problem}. "
+    f"Show only the main components: {tech_stack}. Use simple shapes, clear labels, and avoid extra details or decorations."
+)
+    image_url = generator.generate_image(image_prompt)
+
+    return jsonify({
+        "success": True,
+        "content": content,
+        "image_url": image_url
+    }), 200
     
 if __name__ == "__main__":
     app.run(debug=False, port=5000)
