@@ -41,8 +41,9 @@ class DeliverableGenerator:
         api_key = os.getenv("AZURE_OPENAI_KEY")
         deployment = os.getenv("AZURE_DALL_E_DEPLOYMENT")
 
-        url = f"{endpoint}openai/deployments/dall-e-3/images/generations?api-version=2024-02-01"
-        
+        #url = f"{endpoint}openai/deployments/dall-e-3/images/generations?api-version=2024-02-01"
+        url = f"{endpoint}openai/deployments/{deployment}/images/generations?api-version=2023-12-01-preview" 
+           
         headers = {
             "api-key": api_key,
             "Content-Type": "application/json"

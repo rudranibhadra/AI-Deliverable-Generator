@@ -142,6 +142,7 @@ def deliverable():
         resource_constraints=resource_constraints
     )
 
+    print("Generated Prompt:\n", prompt)  # Debugging output
     # Generate text deliverable
     content = generator.generate_deliverable(prompt)
 
