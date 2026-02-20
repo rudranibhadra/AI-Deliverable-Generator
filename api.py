@@ -22,10 +22,6 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
-# Initialize the generator
-generator = DeliverableGenerator()
-
-
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -132,19 +128,30 @@ def deliverable():
     # Load the prompt template
     prompt_path = PROMPT_FILES[deliverable_type]
     with open(prompt_path, "r", encoding="utf-8") as f:
-        prompt_template = f.read()
+        # prompt_template = 
+        system_message=f.read()
 
     # Fill in the template with user/context values
-    prompt = prompt_template.format(
-        business_problem=business_problem,
-        tech_stack=tech_stack,
-        time_constraint=time_constraint,
-        resource_constraints=resource_constraints
-    )
+    # prompt = prompt_template.format(
+    #     business_problem=business_problem,
+    #     tech_stack=tech_stack,
+    #     time_constraint=time_constraint,
+    #     resource_constraints=resource_constraints
+    # )Extracted Text: {extracted_text}
 
-    print("Generated Prompt:\n", prompt)  # Debugging output
+    user_message = f"""
+    Business Problem: {business_problem}
+    Tech Stack: {tech_stack}
+    Time Constraint: {time_constraint}
+    Resource Constraints: {resource_constraints}
+    """
+
+    print("Generated Prompt:\n", user_message)  # Debugging output
+
+    # Initialize the generator
+    generator = DeliverableGenerator(system_message=system_message)
     # Generate text deliverable
-    content = generator.generate_deliverable(prompt)
+    content = generator.generate_deliverable(user_message)
 
     # Generate image (using DALL·E 3)
     image_prompt = (

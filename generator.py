@@ -22,6 +22,8 @@ class DeliverableGenerator:
             sys_msg = "You are an expert proposal generator for consulting and advisory services."
         try:
             print("Using deployment name:", self.deployment_name)
+            print('Prompt for generation:', prompt)
+            print('System message:', sys_msg)
             response = self.client.chat.completions.create(
                 model=self.deployment_name,
                 messages=[
@@ -43,7 +45,7 @@ class DeliverableGenerator:
 
         #url = f"{endpoint}openai/deployments/dall-e-3/images/generations?api-version=2024-02-01"
         url = f"{endpoint}openai/deployments/{deployment}/images/generations?api-version=2023-12-01-preview" 
-           
+
         headers = {
             "api-key": api_key,
             "Content-Type": "application/json"
