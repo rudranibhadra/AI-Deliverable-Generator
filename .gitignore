@@ -1,5 +1,4 @@
 .env
 __pycache__/
 *.pyc
-streamlit_app.py
 temp_img.png
