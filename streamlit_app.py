@@ -14,7 +14,7 @@ from PyPDF2 import PdfReader
 from docx import Document
 from config import AZURE_CONNECTION_STRING, AZURE_CONTAINER_NAME
 from generator import DeliverableGenerator
-from features import display_deliverable,export_to_pdf
+from features import display_deliverable, export_to_pdf, render_validation_results, validate_inputs,validate_inputs_with_model,render_validation_results
 
 # Allowed extensions
 ALLOWED_EXTENSIONS = {"pdf", "docx", "jpeg", "jpg", "png"}
@@ -120,8 +120,66 @@ if prompt_path and os.path.exists(prompt_path):
 #     st.code(prompt)
 # else:
 #     st.warning("Prompt template not found.")
-
 if st.button("Generate Deliverable"):
+
+
+    validation = validate_inputs_with_model(
+        deliverable_type,
+        business_problem,
+        tech_stack,
+        time_constraint,
+        resource_constraints
+    )
+
+    st.write("Validation result:", validation)  # Debugging output
+    st.subheader("📋 Validation Results")
+    render_validation_results(validation)
+
+    if not validation.get("is_valid", False):
+        st.error("Validation failed. Fix the issues above to continue.")
+        st.stop()
+
+
+    # if not validation.get("is_valid", False):
+    #     st.error("Fix the following errors:")
+    #     for e in validation.get("errors", []):
+    #         st.markdown(f"- {e}")
+    #     if validation.get("warnings"):
+    #         st.warning("Warnings:")
+    #         for w in validation["warnings"]:
+    #             st.markdown(f"- {w}")
+    #     st.stop()
+
+    # if validation.get("warnings"):
+    #     st.warning("Warnings:")
+    #     for w in validation["warnings"]:
+    #         st.markdown(f"- {w}")
+
+
+    # validation = validate_inputs(
+    #     deliverable_type,
+    #     business_problem,
+    #     tech_stack,
+    #     time_constraint,
+    #     resource_constraints
+    # )
+    # print("Validation result:", validation)
+    # if not validation["is_valid"]:
+    #     st.error("Please fix the following errors before generating:")
+    #     for e in validation["errors"]:
+    #         st.markdown(f"- {e}")
+
+    #     if validation["warnings"]:
+    #         st.warning("Warnings:")
+    #         for w in validation["warnings"]:
+    #             st.markdown(f"- {w}")
+    #     st.stop()
+
+    # if validation["warnings"]:
+    #     st.warning("Warnings:")
+    #     for w in validation["warnings"]:
+    #         st.markdown(f"- {w}")
+
     blob_url = None
 
     if uploaded_file is not None:
