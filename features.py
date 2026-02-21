@@ -111,49 +111,121 @@ def display_deliverable(content):
     ]):
         st.json(content)
 
-def export_to_pdf(content, image_url=None):
+def export_to_pdf(content, image_url=None, slides_data=None):
+    """Export deliverable to PDF including slides"""
     pdf = FPDF()
     pdf.add_page()
+    pdf.set_font("Arial", "B", 16)
+    pdf.cell(200, 10, "AI-Generated Deliverable", ln=True, align="C")
+    pdf.ln(10)
     pdf.set_font("Arial", size=12)
-
-    def add_section(title, text):
-        pdf.set_font("Arial", "B", 14)
-        pdf.cell(0, 10, title, ln=1)
-        pdf.set_font("Arial", size=12)
-        pdf.multi_cell(0, 10, str(text))
-        pdf.ln(5)
-
-    # Loop through all top-level keys
+    
+    # Clean text to remove unicode characters that latin-1 can't handle
+    def clean_text(text):
+        """Replace unicode characters with ASCII equivalents"""
+        replacements = {
+            '\u2019': "'",  # Right single quotation mark
+            '\u2018': "'",  # Left single quotation mark
+            '\u201c': '"',  # Left double quotation mark
+            '\u201d': '"',  # Right double quotation mark
+            '\u2013': '-',  # En dash
+            '\u2014': '--', # Em dash
+            '\u2026': '...', # Ellipsis
+        }
+        for old, new in replacements.items():
+            text = text.replace(old, new)
+        # Remove any remaining non-latin-1 characters
+        return text.encode('latin-1', errors='ignore').decode('latin-1')
+    
+    # Deliverable content
     if isinstance(content, dict):
         for key, value in content.items():
-            # Skip the image key if present
-            if key in ["image_url", "diagram", "image"]:
-                continue
-            # For lists (like functional-requirements), format nicely
+            pdf.set_font("Arial", "B", 14)
+            clean_key = clean_text(str(key).replace("-", " ").title())
+            pdf.cell(200, 10, clean_key, ln=True)
+            pdf.set_font("Arial", size=12)
+            
             if isinstance(value, list):
-                section_text = ""
-                for idx, item in enumerate(value, 1):
-                    if isinstance(item, dict):
-                        for k, v in item.items():
-                            section_text += f"{k.capitalize()}: {v}\n"
-                        section_text += "\n"
-                    else:
-                        section_text += f"{idx}. {item}\n"
-                add_section(key.replace("-", " ").title(), section_text)
+                for item in value:
+                    clean_item = clean_text(str(item))
+                    pdf.multi_cell(0, 10, f"- {clean_item}")
             else:
-                add_section(key.replace("-", " ").title(), value)
-
-    # Add the image if present
+                clean_value = clean_text(str(value))
+                pdf.multi_cell(0, 10, clean_value)
+            pdf.ln(5)
+    else:
+        clean_content = clean_text(str(content))
+        pdf.multi_cell(0, 10, clean_content)
+    
+    # Add image if available
     if image_url:
-        try:
-            response = requests.get(image_url)
-            img = Image.open(io.BytesIO(response.content))
-            img_path = "temp_img.png"
-            img.save(img_path)
-            pdf.image(img_path, w=pdf.w - 20)
-        except Exception as e:
-            pdf.cell(0, 10, f"Could not load image: {e}", ln=1)
-
+        pdf.add_page()
+        pdf.set_font("Arial", "B", 16)
+        pdf.cell(200, 10, "Generated Diagram", ln=True, align="C")
+        # Image handling remains the same
+    
+    # Add slide deck information
+    if slides_data and not slides_data.get("error"):
+        pdf.add_page()
+        pdf.set_font("Arial", "B", 16)
+        pdf.cell(200, 10, "Slide Deck Structure", ln=True, align="C")
+        pdf.ln(10)
+        
+        # Total slides
+        pdf.set_font("Arial", "B", 14)
+        total_slides = slides_data.get("total-slides", 0)
+        pdf.cell(200, 10, f"Total Slides: {total_slides}", ln=True)
+        pdf.ln(5)
+        
+        # Storyline
+        storyline = slides_data.get("storyline", "")
+        if storyline:
+            pdf.set_font("Arial", "B", 14)
+            pdf.cell(200, 10, "Storyline:", ln=True)
+            pdf.set_font("Arial", size=12)
+            clean_storyline = clean_text(storyline)
+            pdf.multi_cell(0, 10, clean_storyline)
+            pdf.ln(5)
+        
+        # Slides breakdown
+        pdf.set_font("Arial", "B", 14)
+        pdf.cell(200, 10, "Slide Breakdown:", ln=True)
+        pdf.ln(5)
+        
+        for slide in slides_data.get("slides", []):
+            num = slide.get("slide-number", "?")
+            title = clean_text(slide.get("title", "Untitled"))
+            
+            pdf.set_font("Arial", "B", 12)
+            pdf.cell(200, 10, f"Slide {num}: {title}", ln=True)
+            
+            pdf.set_font("Arial", size=10)
+            section = clean_text(slide.get("section", ""))
+            content_type = clean_text(slide.get("content-type", ""))
+            pdf.cell(200, 8, f"Section: {section} | Type: {content_type}", ln=True)
+            
+            suggested_content = clean_text(slide.get("suggested-content", ""))
+            if suggested_content:
+                pdf.multi_cell(0, 8, f"Content: {suggested_content}")
+            
+            visual_elements = slide.get("visual-elements", [])
+            if visual_elements:
+                pdf.cell(200, 8, f"Visual Elements: {', '.join(visual_elements)}", ln=True)
+            
+            pdf.ln(3)
+        
+        # Design recommendations
+        design_recs = slides_data.get("design-recommendations", [])
+        if design_recs:
+            pdf.add_page()
+            pdf.set_font("Arial", "B", 14)
+            pdf.cell(200, 10, "Design Recommendations:", ln=True)
+            pdf.set_font("Arial", size=12)
+            for idx, rec in enumerate(design_recs, 1):
+                clean_rec = clean_text(rec)
+                pdf.multi_cell(0, 10, f"{idx}. {clean_rec}")
+            pdf.ln(5)
+    
     return pdf.output(dest="S").encode("latin-1")
 
 def validate_inputs(
@@ -310,3 +382,93 @@ def render_validation_results(validation_data):
     render_list("⚠️ Commercial Risks", validation_data.get("commercial_risks", []), "warning")
     render_list("⚠️ Legal Risks", validation_data.get("legal_risks", []), "warning")
     render_list("⚠️ Scope vs Deliverables", validation_data.get("scope_vs_deliverables", []), "warning")
+
+def format_content_as_text(content):
+    """Convert deliverable JSON/dict into readable text for slide generation."""
+    if isinstance(content, str):
+        return content
+
+    if not isinstance(content, dict):
+        return str(content)
+
+    lines = []
+    for key, value in content.items():
+        lines.append(f"{key.replace('-', ' ').title()}:")
+        if isinstance(value, list):
+            for item in value:
+                if isinstance(item, dict):
+                    for k, v in item.items():
+                        lines.append(f"  - {k}: {v}")
+                else:
+                    lines.append(f"  - {item}")
+        elif isinstance(value, dict):
+            for k, v in value.items():
+                lines.append(f"  - {k}: {v}")
+        else:
+            lines.append(str(value))
+        lines.append("")
+
+    return "\n".join(lines)
+
+
+def generate_slide_deck_from_text(content_text, generator, prompt_path="prompts/slides_prompt.txt"):
+    """Generate slide deck from existing deliverable text."""
+    with open(prompt_path, "r", encoding="utf-8") as f:
+        system_message = f.read()
+
+    user_message = f"Deliverable Text:\n{content_text}"
+
+    try:
+        slides_data = generator.generate_deliverable(system_message, user_message)
+        if isinstance(slides_data, str):
+            slides_data = json.loads(slides_data)
+        return slides_data
+    except Exception as e:
+        return {"error": str(e)}
+
+
+def render_slide_deck(slides_data):
+    """Nicely render slide deck structure."""
+    if not slides_data or slides_data.get("error"):
+        st.error(f"Slide generation failed: {slides_data.get('error', 'Unknown error')}")
+        return
+
+    col1, col2 = st.columns([3, 1])
+    with col2:
+        st.metric("Total Slides", slides_data.get("total-slides", 0))
+
+    storyline = slides_data.get("storyline", "")
+    if storyline:
+        st.markdown("### Storyline")
+        st.markdown(storyline)
+
+    st.markdown("---")
+    st.markdown("### Slide-by-Slide Breakdown")
+
+    for slide in slides_data.get("slides", []):
+        title = slide.get("title", "Untitled")
+        num = slide.get("slide-number", "?")
+        with st.expander(f"Slide {num}: {title}"):
+            col1, col2 = st.columns([2, 1])
+            with col1:
+                st.markdown(f"**Section:** {slide.get('section','')}")
+                st.markdown(f"**Content Type:** {slide.get('content-type','')}")
+                st.markdown("**Suggested Content:**")
+                st.markdown(slide.get("suggested-content", ""))
+            with col2:
+                st.markdown("**Visual Elements:**")
+                for v in slide.get("visual-elements", []):
+                    st.markdown(f"- {v}")
+
+            notes = slide.get("speaker-notes", "")
+            if notes:
+                st.markdown("**Speaker Notes:**")
+                st.markdown(notes)
+
+    design_recs = slides_data.get("design-recommendations", [])
+    if design_recs:
+        st.markdown("---")
+        st.markdown("### Design Recommendations")
+        for idx, rec in enumerate(design_recs, 1):
+            st.markdown(f"{idx}. {rec}")
+

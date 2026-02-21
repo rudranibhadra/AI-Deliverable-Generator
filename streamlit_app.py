@@ -14,7 +14,7 @@ from PyPDF2 import PdfReader
 from docx import Document
 from config import AZURE_CONNECTION_STRING, AZURE_CONTAINER_NAME
 from generator import DeliverableGenerator
-from features import display_deliverable, export_to_pdf, render_validation_results, validate_inputs,validate_inputs_with_model,render_validation_results
+from features import display_deliverable, export_to_pdf, format_content_as_text, render_validation_results, validate_inputs,validate_inputs_with_model,render_validation_results,generate_slide_deck_from_text,render_slide_deck,export_to_pdf
 
 # Allowed extensions
 ALLOWED_EXTENSIONS = {"pdf", "docx", "jpeg", "jpg", "png"}
@@ -122,14 +122,14 @@ if prompt_path and os.path.exists(prompt_path):
 #     st.warning("Prompt template not found.")
 if st.button("Generate Deliverable"):
 
-
-    validation = validate_inputs_with_model(
-        deliverable_type,
-        business_problem,
-        tech_stack,
-        time_constraint,
-        resource_constraints
-    )
+    with st.spinner("🔍 Validating inputs..."):
+        validation = validate_inputs_with_model(
+            deliverable_type,
+            business_problem,
+            tech_stack,
+            time_constraint,
+            resource_constraints
+        )
 
     st.write("Validation result:", validation)  # Debugging output
     st.subheader("📋 Validation Results")
@@ -234,7 +234,7 @@ if st.button("Generate Deliverable"):
     """
 
 
-    with st.spinner("Generating deliverable and diagram..."):
+    with st.spinner("📝 Generating deliverable and diagram..."):
         generator = DeliverableGenerator(system_message=system_message)
         content = generator.generate_deliverable(user_message)
         image_prompt = (
@@ -258,6 +258,13 @@ if st.button("Generate Deliverable"):
         st.image(image_url)
     else:
         st.info("No image was generated.")
+
+    st.markdown("---")
+    st.subheader("🎯 Slide Deck Structure")
+    with st.spinner("📊 Generating slide deck..."):
+        content_text = format_content_as_text(content)
+        slides_data = generate_slide_deck_from_text(content_text, generator)
+    render_slide_deck(slides_data)
 
     # st.write("Content for PDF:", content)
     if isinstance(content, str):

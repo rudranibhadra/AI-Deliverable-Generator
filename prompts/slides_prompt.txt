@@ -1,0 +1,21 @@
+You are a presentation expert. Rearrange the following deliverable text into a slide deck.
+
+Deliverable Text: {content_text}
+
+Return ONLY valid JSON:
+{
+  "total-slides": 8,
+  "slides": [
+    {
+      "slide-number": 1,
+      "title": "Slide Title",
+      "section": "section name",
+      "content-type": "narrative/bullet-points/diagram/table/code",
+      "suggested-content": "Suggested content for this slide",
+      "visual-elements": ["element1", "element2"],
+      "speaker-notes": "Speaker notes"
+    }
+  ],
+  "storyline": "Overall narrative flow",
+  "design-recommendations": ["recommendation1", "recommendation2"]
+}
