@@ -228,97 +228,97 @@ def export_to_pdf(content, image_url=None, slides_data=None):
     
     return pdf.output(dest="S").encode("latin-1")
 
-def validate_inputs(
-    deliverable_type,
-    business_problem,
-    tech_stack,
-    time_constraint,
-    resource_constraints,
-    allowed_types=None
-):
-    """Validate all inputs and detect incompatible assumptions."""
-    allowed_types = allowed_types or ["summary", "roadmap", "architecture", "data-schema"]
+# def validate_inputs(
+#     deliverable_type,
+#     business_problem,
+#     tech_stack,
+#     time_constraint,
+#     resource_constraints,
+#     allowed_types=None
+# ):
+#     """Validate all inputs and detect incompatible assumptions."""
+#     allowed_types = allowed_types or ["summary", "roadmap", "architecture", "data-schema"]
 
-    errors = []
-    warnings = []
-    normalized = {}
+#     errors = []
+#     warnings = []
+#     normalized = {}
 
-    # Deliverable type
-    if deliverable_type not in allowed_types:
-        errors.append("Invalid deliverable type selected.")
-    normalized["deliverable_type"] = deliverable_type
+#     # Deliverable type
+#     if deliverable_type not in allowed_types:
+#         errors.append("Invalid deliverable type selected.")
+#     normalized["deliverable_type"] = deliverable_type
 
-    # Business problem
-    if not business_problem or len(business_problem.strip()) < 20:
-        errors.append("Business Problem must be at least 20 characters.")
-    normalized["business_problem"] = business_problem.strip()
+#     # Business problem
+#     if not business_problem or len(business_problem.strip()) < 20:
+#         errors.append("Business Problem must be at least 20 characters.")
+#     normalized["business_problem"] = business_problem.strip()
 
-    # Tech stack
-    if not tech_stack or len(tech_stack.strip()) < 3:
-        errors.append("Tech Stack is required (comma separated).")
-        normalized["tech_stack_list"] = []
-    else:
-        # Split and normalize
-        stack_list = [t.strip() for t in tech_stack.split(",") if t.strip()]
-        if len(stack_list) < 1:
-            errors.append("Tech Stack must have at least 1 item.")
-        if any(len(t) < 2 for t in stack_list):
-            warnings.append("Some tech stack items look too short.")
-        normalized["tech_stack_list"] = stack_list
+#     # Tech stack
+#     if not tech_stack or len(tech_stack.strip()) < 3:
+#         errors.append("Tech Stack is required (comma separated).")
+#         normalized["tech_stack_list"] = []
+#     else:
+#         # Split and normalize
+#         stack_list = [t.strip() for t in tech_stack.split(",") if t.strip()]
+#         if len(stack_list) < 1:
+#             errors.append("Tech Stack must have at least 1 item.")
+#         if any(len(t) < 2 for t in stack_list):
+#             warnings.append("Some tech stack items look too short.")
+#         normalized["tech_stack_list"] = stack_list
 
-        # Incompatible assumptions (simple rules)
-        stack_lower = [t.lower() for t in stack_list]
-        if "mongodb" in stack_lower and "mysql" in stack_lower:
-            warnings.append("Mixing MongoDB and MySQL may require justification.")
-        if "serverless" in stack_lower and "on-prem" in stack_lower:
-            warnings.append("Serverless + On‑prem may be conflicting assumptions.")
+#         # Incompatible assumptions (simple rules)
+#         stack_lower = [t.lower() for t in stack_list]
+#         if "mongodb" in stack_lower and "mysql" in stack_lower:
+#             warnings.append("Mixing MongoDB and MySQL may require justification.")
+#         if "serverless" in stack_lower and "on-prem" in stack_lower:
+#             warnings.append("Serverless + On‑prem may be conflicting assumptions.")
 
-    # Time constraint
-    if time_constraint:
-        time_match = re.search(r"(\d+)\s*(day|days|week|weeks|month|months)", time_constraint.lower())
-        if not time_match:
-            errors.append("Time Constraint must include a number and unit (e.g., '3 months').")
-        normalized["time_constraint"] = time_constraint.strip()
-    else:
-        warnings.append("Time Constraint not provided.")
-        normalized["time_constraint"] = ""
+#     # Time constraint
+#     if time_constraint:
+#         time_match = re.search(r"(\d+)\s*(day|days|week|weeks|month|months)", time_constraint.lower())
+#         if not time_match:
+#             errors.append("Time Constraint must include a number and unit (e.g., '3 months').")
+#         normalized["time_constraint"] = time_constraint.strip()
+#     else:
+#         warnings.append("Time Constraint not provided.")
+#         normalized["time_constraint"] = ""
 
-    # Resource constraints
-    if resource_constraints:
-        res_match = re.search(r"(\d+)", resource_constraints)
-        if not res_match:
-            errors.append("Resource Constraints should include a number (e.g., '3 team members').")
-        normalized["resource_constraints"] = resource_constraints.strip()
-    else:
-        warnings.append("Resource Constraints not provided.")
-        normalized["resource_constraints"] = ""
+#     # Resource constraints
+#     if resource_constraints:
+#         res_match = re.search(r"(\d+)", resource_constraints)
+#         if not res_match:
+#             errors.append("Resource Constraints should include a number (e.g., '3 team members').")
+#         normalized["resource_constraints"] = resource_constraints.strip()
+#     else:
+#         warnings.append("Resource Constraints not provided.")
+#         normalized["resource_constraints"] = ""
 
-    # Incompatible assumptions (timeline vs resources)
-    if time_constraint and resource_constraints:
-        time_match = re.search(r"(\d+)\s*(day|days|week|weeks|month|months)", time_constraint.lower())
-        res_match = re.search(r"(\d+)", resource_constraints)
-        if time_match and res_match:
-            time_val = int(time_match.group(1))
-            unit = time_match.group(2)
-            team_size = int(res_match.group(1))
+#     # Incompatible assumptions (timeline vs resources)
+#     if time_constraint and resource_constraints:
+#         time_match = re.search(r"(\d+)\s*(day|days|week|weeks|month|months)", time_constraint.lower())
+#         res_match = re.search(r"(\d+)", resource_constraints)
+#         if time_match and res_match:
+#             time_val = int(time_match.group(1))
+#             unit = time_match.group(2)
+#             team_size = int(res_match.group(1))
 
-            # Convert to days for rough comparison
-            if "month" in unit:
-                days = time_val * 30
-            elif "week" in unit:
-                days = time_val * 7
-            else:
-                days = time_val
+#             # Convert to days for rough comparison
+#             if "month" in unit:
+#                 days = time_val * 30
+#             elif "week" in unit:
+#                 days = time_val * 7
+#             else:
+#                 days = time_val
 
-            if days <= 14 and team_size <= 2:
-                warnings.append("Very short timeline with very small team may be unrealistic.")
+#             if days <= 14 and team_size <= 2:
+#                 warnings.append("Very short timeline with very small team may be unrealistic.")
 
-    return {
-        "is_valid": len(errors) == 0,
-        "errors": errors,
-        "warnings": warnings,
-        "normalized": normalized
-    }
+#     return {
+#         "is_valid": len(errors) == 0,
+#         "errors": errors,
+#         "warnings": warnings,
+#         "normalized": normalized
+#     }
 
 def validate_inputs_with_model(
     deliverable_type,
@@ -357,7 +357,7 @@ def render_validation_results(validation_data):
         status = "✅ Passed" if validation_data.get("is_valid") or validation_data.get("validation-passed") else "❌ Failed"
         st.metric("Validation Status", status)
     with col2:
-        score = validation_data.get("overall-score", "N/A")
+        score = validation_data.get("quality_score", "N/A")
         st.metric("Quality Score", score if score != "N/A" else "N/A")
     with col3:
         issues_count = len(validation_data.get("errors", []))

@@ -14,7 +14,7 @@ from PyPDF2 import PdfReader
 from docx import Document
 from config import AZURE_CONNECTION_STRING, AZURE_CONTAINER_NAME
 from generator import DeliverableGenerator
-from features import display_deliverable, export_to_pdf, format_content_as_text, render_validation_results, validate_inputs,validate_inputs_with_model,render_validation_results,generate_slide_deck_from_text,render_slide_deck,export_to_pdf
+from features import display_deliverable, export_to_pdf, format_content_as_text, render_validation_results,validate_inputs_with_model,render_validation_results,generate_slide_deck_from_text,render_slide_deck,export_to_pdf
 
 # Allowed extensions
 ALLOWED_EXTENSIONS = {"pdf", "docx", "jpeg", "jpg", "png"}
@@ -47,7 +47,7 @@ def upload_to_blob_storage(file_path, blob_name=None):
 
 
 
-st.title("Deliverable Generator (Streamlit)")
+st.title("AI Deliverable Generator 🚀🤖✨")
 
 uploaded_file = st.file_uploader("Upload a file (optional)", type=list(ALLOWED_EXTENSIONS))
 
