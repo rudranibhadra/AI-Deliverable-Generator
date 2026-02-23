@@ -354,14 +354,27 @@ def render_validation_results(validation_data):
 
     col1, col2, col3 = st.columns(3)
     with col1:
-        status = "✅ Passed" if validation_data.get("is_valid") or validation_data.get("validation-passed") else "❌ Failed"
+        status = "✅ Passed" if validation_data.get("is_valid") else "❌ Failed"
         st.metric("Validation Status", status)
     with col2:
         score = validation_data.get("quality_score", "N/A")
-        st.metric("Quality Score", score if score != "N/A" else "N/A")
+        st.metric("Quality Score", f"{score}/100" if score != "N/A" else "N/A")
     with col3:
         issues_count = len(validation_data.get("errors", []))
         st.metric("Errors Found", issues_count)
+
+    # Show score breakdown if available
+    breakdown = validation_data.get("score_breakdown")
+    if breakdown:
+        with st.expander("📊 Score Breakdown"):
+            st.markdown(f"""
+            - **Errors:** -{breakdown.get('errors_deduction', 0)} points
+            - **Scope Mismatch:** -{breakdown.get('scope_deduction', 0)} points
+            - **Incompatible Assumptions:** -{breakdown.get('incompatible_deduction', 0)} points
+            - **Commercial Risks:** -{breakdown.get('commercial_deduction', 0)} points
+            - **Legal Risks:** -{breakdown.get('legal_deduction', 0)} points
+            - **Warnings:** -{breakdown.get('warnings_deduction', 0)} points
+            """)
 
     st.markdown("---")
 
@@ -377,6 +390,17 @@ def render_validation_results(validation_data):
                 st.markdown(f"- {item}")
 
     render_list("❌ Errors", validation_data.get("errors", []), "error")
+    
+    # Highlight scope mismatch
+    scope_issues = validation_data.get("scope_vs_deliverables", [])
+    if scope_issues:
+        suggested = validation_data.get("suggested_deliverable_type")
+        st.error("🎯 Scope vs Deliverables Mismatch")
+        for item in scope_issues:
+            st.markdown(f"- {item}")
+        if suggested:
+            st.info(f"💡 **Suggestion:** Change deliverable type to **{suggested}**")
+    
     render_list("⚠️ Warnings", validation_data.get("warnings", []), "warning")
     render_list("⚠️ Incompatible Assumptions", validation_data.get("incompatible_assumptions", []), "warning")
     render_list("⚠️ Commercial Risks", validation_data.get("commercial_risks", []), "warning")

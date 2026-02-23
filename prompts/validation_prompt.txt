@@ -14,7 +14,7 @@ CRITICAL: SCOPE VS DELIVERABLES CHECK
 Look for these EXACT keywords in the Business Problem that contradict the selected deliverable type:
 
 If deliverable_type = "summary":
-  → Flag if problem contains: "design", "architect", "build", "create schema", "develop roadmap"
+  → Flag if problem contains: "design", "architect", "build", "create schema", "develop roadmap", "create roadmap"
   → These indicate user wants architecture/roadmap/schema, NOT a summary
 
 If deliverable_type = "architecture":
@@ -29,11 +29,6 @@ If deliverable_type = "data-schema":
   → Flag if problem contains: "create roadmap", "architecture design", "executive summary"
   → These indicate user wants different deliverable
 
-EXAMPLE MISMATCHES (MUST FLAG):
-- deliverable_type="summary" + problem="Design a microservices architecture" → MISMATCH
-- deliverable_type="architecture" + problem="Summarize the cloud migration approach" → MISMATCH
-- deliverable_type="roadmap" + problem="Create database schema for..." → MISMATCH
-
 STRICT REQUIREMENTS (flag as warnings if missing):
 
 Business Problem MUST include:
@@ -46,45 +41,39 @@ Business Problem MUST include:
 
 Tech Stack MUST include:
 ✓ Justification for each technology choice
-✓ Version numbers or specific services (e.g., "Azure App Service Standard tier")
+✓ Version numbers or specific services
 ✓ Why this stack vs alternatives
-→ If vague (e.g., "python, sql, azure") → add to warnings
+→ If vague → add to warnings
 
 Timeline MUST include:
-✓ Breakdown into phases/sprints (e.g., "4 sprints: Discovery-2mo, MVP-4mo...")
+✓ Breakdown into phases/sprints
 ✓ Methodology (Agile/Waterfall)
 ✓ Milestones
-→ If just "1 year" without breakdown → add to warnings
+→ If just duration without breakdown → add to warnings
 
 Resources MUST include:
-✓ Role breakdown (e.g., "3 backend, 2 frontend, 1 DevOps, 1 QA")
+✓ Role breakdown (e.g., "3 backend, 2 frontend, 1 DevOps")
 ✓ Skill levels (senior/mid/junior)
-✓ Justification for team size vs timeline
-→ If just "10 devs" without roles → add to warnings
+✓ Justification for team size
+→ If just count without roles → add to warnings
 
 CATEGORIZATION RULES:
 
 **errors** (blocks generation):
-- Business problem < 50 characters OR too generic (e.g., "build an app")
+- Business problem < 50 characters OR too generic
 - No tech stack OR just "databases, cloud"
 - Invalid time (e.g., "ASAP", "soon")
 
-**scope_vs_deliverables** (CRITICAL - ALWAYS CHECK):
-- User selected "summary" but problem says "design/architect/build"
-- User selected "architecture" but problem says "summarize/overview"
-- User selected "roadmap" but problem says "design schema/architecture"
-- User selected "data-schema" but problem says "create roadmap/architecture"
-→ If mismatch found, SUBTRACT 20 points from quality score
+**scope_vs_deliverables** (CRITICAL):
+- User selected wrong deliverable type for their business problem
+- When found, also add a "suggested_deliverable_type" field
 
-**warnings** (quality issues - flag ALL missing details):
-- No scalability target mentioned
-- No performance requirements
-- No compliance/security mentioned
-- No integration points specified
+**warnings** (quality issues):
+- Missing scalability/performance/compliance/integration details
 - Tech stack not justified
 - No timeline breakdown
 - No resource role breakdown
-- Generic/vague descriptions
+- Generic descriptions
 
 **incompatible_assumptions**:
 - Timeline unrealistic for complexity
@@ -92,31 +81,54 @@ CATEGORIZATION RULES:
 - Conflicting tech choices
 
 **commercial_risks**:
-- No budget/cost consideration mentioned
+- No budget/cost consideration
 - Cloud costs not addressed
 - Team size may cause delays
 
 **legal_risks**:
-- Payment processing without PCI-DSS
-- EU data without GDPR
-- Healthcare data without HIPAA
+- Missing compliance (PCI-DSS, GDPR, HIPAA)
 
-QUALITY SCORE:
-Start at 100, SUBTRACT:
-- 30 per error
-- 20 per scope_vs_deliverables mismatch
-- 15 per incompatible assumption
-- 10 per commercial/legal risk
-- 5 per warning
+QUALITY SCORE CALCULATION (MANDATORY - SHOW YOUR WORK):
+
+Step 1: Count issues
+- errors_count = <number>
+- scope_mismatch_count = <number>
+- incompatible_count = <number>
+- commercial_count = <number>
+- legal_count = <number>
+- warnings_count = <number>
+
+Step 2: Calculate deductions
+- errors_deduction = errors_count × 30
+- scope_deduction = scope_mismatch_count × 20
+- incompatible_deduction = incompatible_count × 15
+- commercial_deduction = commercial_count × 10
+- legal_deduction = legal_count × 10
+- warnings_deduction = warnings_count × 5
+
+Step 3: Final score
+quality_score = 100 - errors_deduction - scope_deduction - incompatible_deduction - commercial_deduction - legal_deduction - warnings_deduction
+
+If quality_score < 0, set to 0.
+If quality_score < 60, set is_valid to false.
 
 Return ONLY JSON:
 {
   "is_valid": true/false,
-  "quality_score": <number>,
+  "quality_score": <calculated number>,
+  "suggested_deliverable_type": "<type if scope mismatch found, else null>",
   "errors": [],
   "warnings": [],
   "incompatible_assumptions": [],
   "commercial_risks": [],
   "legal_risks": [],
-  "scope_vs_deliverables": []
+  "scope_vs_deliverables": [],
+  "score_breakdown": {
+    "errors_deduction": <number>,
+    "scope_deduction": <number>,
+    "incompatible_deduction": <number>,
+    "commercial_deduction": <number>,
+    "legal_deduction": <number>,
+    "warnings_deduction": <number>
+  }
 }

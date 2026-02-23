@@ -135,50 +135,31 @@ if st.button("Generate Deliverable"):
     st.subheader("📋 Validation Results")
     render_validation_results(validation)
 
-    if not validation.get("is_valid", False):
-        st.error("Validation failed. Fix the issues above to continue.")
+    # Block on hard errors OR scope mismatch
+    has_errors = len(validation.get("errors", [])) > 0
+    has_scope_mismatch = len(validation.get("scope_vs_deliverables", [])) > 0
+    is_valid = validation.get("is_valid", False)
+
+    if has_errors or has_scope_mismatch or not is_valid:
+        if has_scope_mismatch:
+            suggested = validation.get("suggested_deliverable_type")
+            st.error("❌ Scope mismatch detected! Fix the deliverable type to continue.")
+            
+            if suggested:
+                st.info(f"💡 **Suggestion:** Change deliverable type to **{suggested}**")
+                
+                if st.button(f"🔄 Switch to {suggested.title()}"):
+                    st.session_state['deliverable_type'] = suggested
+                    st.rerun()
+        
+        if has_errors:
+            st.error("❌ Validation failed. Fix the errors above to continue.")
+        
         st.stop()
 
-
-    # if not validation.get("is_valid", False):
-    #     st.error("Fix the following errors:")
-    #     for e in validation.get("errors", []):
-    #         st.markdown(f"- {e}")
-    #     if validation.get("warnings"):
-    #         st.warning("Warnings:")
-    #         for w in validation["warnings"]:
-    #             st.markdown(f"- {w}")
-    #     st.stop()
-
-    # if validation.get("warnings"):
-    #     st.warning("Warnings:")
-    #     for w in validation["warnings"]:
-    #         st.markdown(f"- {w}")
-
-
-    # validation = validate_inputs(
-    #     deliverable_type,
-    #     business_problem,
-    #     tech_stack,
-    #     time_constraint,
-    #     resource_constraints
-    # )
-    # print("Validation result:", validation)
-    # if not validation["is_valid"]:
-    #     st.error("Please fix the following errors before generating:")
-    #     for e in validation["errors"]:
-    #         st.markdown(f"- {e}")
-
-    #     if validation["warnings"]:
-    #         st.warning("Warnings:")
-    #         for w in validation["warnings"]:
-    #             st.markdown(f"- {w}")
-    #     st.stop()
-
-    # if validation["warnings"]:
-    #     st.warning("Warnings:")
-    #     for w in validation["warnings"]:
-    #         st.markdown(f"- {w}")
+    # Allow generation with warnings/risks
+    if validation.get("warnings") or validation.get("incompatible_assumptions") or validation.get("commercial_risks") or validation.get("legal_risks"):
+        st.warning("⚠️ Quality issues detected. Review above before proceeding.")
 
     blob_url = None
 
