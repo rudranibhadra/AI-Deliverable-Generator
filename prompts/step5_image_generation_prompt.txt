@@ -1,0 +1,19 @@
+Create a professional system architecture diagram based on this technical approach:
+
+{technical_approach}
+
+The diagram should show:
+- System components and their interactions
+- Technology stack and infrastructure
+- Data flows between components
+- Integration points with external systems
+- Cloud services and deployment architecture
+
+Style requirements:
+- Clean, modern architecture diagram
+- Clearly labeled components
+- Professional color scheme
+- Layered architecture view (presentation, business logic, data)
+- Show connections and data flows with arrows
+
+Make it visually clear and suitable for a technical presentation.

@@ -1,0 +1,61 @@
+You are a solutions architect generating a detailed technical plan.
+
+Based on the problem requirements below, generate a technical plan as JSON with:
+- technical-approach: Detailed methodology and technical strategy as a comprehensive paragraph (STRING, not JSON object). Include implementation phases, integration strategy, and technical considerations. Minimum 150 words.
+- architecture-overview: High-level system architecture description as a detailed paragraph (STRING). Describe components, layers, and how they interact. Minimum 100 words.
+- technology-stack: Detailed breakdown of technologies with justification (OBJECT with categories like frontend, backend, database, cloud-services, security, etc.)
+
+Problem Requirements:
+{problem_requirements}
+
+Example format:
+{{
+  "technical-approach": "The implementation will follow a phased microservices architecture approach, beginning with core consultation services and progressively adding integrations. Phase 1 focuses on MVP functionality including user authentication, video consultation, and basic EHR data retrieval. We will utilize Azure App Service for containerized deployment with auto-scaling capabilities. The event-driven architecture will leverage Azure Service Bus for asynchronous communication between services, ensuring loose coupling and resilience. WebRTC will handle real-time video with TURN servers for NAT traversal. Security-first design incorporates OAuth 2.0 with Azure AD B2C for authentication, TLS 1.3 for data in transit, and Azure Key Vault for secrets management. Integration with Epic/Cerner will use FHIR R4 APIs through Azure Health Data Services, providing standardized healthcare data exchange. The entire infrastructure will be managed as code using Terraform for reproducibility and version control.",
+  
+  "architecture-overview": "The system follows a three-tier microservices architecture with clear separation of concerns. The presentation layer consists of a React-based SPA served via Azure CDN for global performance. The API layer uses Azure API Management as a gateway, routing requests to backend microservices hosted on Azure App Service. Core services include: Authentication Service (Azure AD B2C integration), Consultation Service (manages video sessions), EHR Integration Service (FHIR API communication), and Prescription Routing Service (pharmacy integration). The data layer leverages Azure Cosmos DB for user profiles and session metadata (low-latency global distribution), Azure SQL for transactional data (prescriptions, billing), and Azure Blob Storage for video recordings and attachments. Real-time communication flows through dedicated WebRTC signaling servers with Azure Media Services for recording/transcoding. All components communicate via Azure Service Bus for event-driven updates.",
+  
+  "technology-stack": {{
+    "frontend": {{
+      "framework": "React 18 with TypeScript",
+      "state-management": "Redux Toolkit",
+      "real-time": "WebRTC, Socket.io for signaling",
+      "ui-library": "Material-UI for HIPAA-compliant design"
+    }},
+    "backend": {{
+      "runtime": "Python 3.11 with FastAPI",
+      "api-gateway": "Azure API Management",
+      "authentication": "Azure AD B2C with OAuth 2.0",
+      "async-processing": "Azure Functions for serverless tasks"
+    }},
+    "database": {{
+      "nosql": "Azure Cosmos DB (user profiles, sessions)",
+      "relational": "Azure SQL Database (transactions, audit logs)",
+      "caching": "Azure Redis Cache for session state"
+    }},
+    "cloud-services": {{
+      "hosting": "Azure App Service with Docker containers",
+      "messaging": "Azure Service Bus for event streaming",
+      "storage": "Azure Blob Storage for media files",
+      "health-data": "Azure Health Data Services (FHIR server)"
+    }},
+    "security": {{
+      "secrets": "Azure Key Vault",
+      "encryption": "TLS 1.3, AES-256 at rest",
+      "compliance": "HIPAA BAA with Azure, SOC 2 Type II",
+      "monitoring": "Azure Sentinel for threat detection"
+    }},
+    "devops": {{
+      "iac": "Terraform for infrastructure",
+      "cicd": "Azure DevOps Pipelines",
+      "monitoring": "Azure Monitor, Application Insights",
+      "logging": "Azure Log Analytics"
+    }}
+  }}
+}}
+
+IMPORTANT: 
+- Return ONLY valid JSON with no explanations, markdown formatting, or code blocks.
+- Use lowercase hyphenated keys for top-level fields.
+- technical-approach and architecture-overview MUST be detailed string paragraphs, not JSON objects.
+- Ensure technical-approach is at least 150 words and architecture-overview is at least 100 words.
+- technology-stack should be a structured object with clear categories.

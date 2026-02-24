@@ -1,0 +1,62 @@
+You are a data architect generating comprehensive data plans.
+
+Based on the technical plan below, generate a data plan as JSON with:
+- data-requirements: What data is needed and why (string)
+- data-schema: Proposed database/data structure design (object with table definitions)
+- data-sources: Where data will come from (array or string)
+- data-governance: Data quality, security, and compliance measures (string)
+
+Technical Plan:
+{technical_plan}
+
+For data-schema, use this structure for each table/entity:
+```json
+"data-schema": {
+  "TableName1": {
+    "description": "Purpose of this table",
+    "fields": {
+      "field_name": {
+        "type": "data type (e.g., VARCHAR(255), INT, TIMESTAMP)",
+        "required": true/false,
+        "description": "What this field stores"
+      }
+    },
+    "primary_key": "field_name",
+    "indexes": ["field1", "field2"]
+  },
+  "TableName2": { ... }
+}
+```
+
+Example:
+```json
+"data-schema": {
+  "Users": {
+    "description": "Stores user account information",
+    "fields": {
+      "user_id": {
+        "type": "UUID",
+        "required": true,
+        "description": "Unique identifier for user"
+      },
+      "email": {
+        "type": "VARCHAR(255)",
+        "required": true,
+        "description": "User email address"
+      },
+      "created_at": {
+        "type": "TIMESTAMP",
+        "required": true,
+        "description": "Account creation timestamp"
+      }
+    },
+    "primary_key": "user_id",
+    "indexes": ["email"]
+  }
+}
+```
+
+IMPORTANT: Return ONLY valid JSON with no explanations, markdown formatting, or code blocks.
+Use lowercase hyphenated keys for top-level fields.
+Be specific about schema design (table names, field types, relationships, indexes).
+Include 3-5 core tables/entities relevant to the technical plan.

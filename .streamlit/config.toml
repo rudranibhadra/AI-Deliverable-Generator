@@ -1,9 +1,9 @@
 [theme]
-primaryColor = "#c22fcf"
+primaryColor = "#2fcf84"
 backgroundColor = "#16313b"
-secondaryBackgroundColor = "#25b16f"
+secondaryBackgroundColor = "#a125b1"
 textColor = "#c2e8eb"
-linkColor = "#3d3a2a"
+linkColor = "#2c2a3d"
 borderColor = "#0bf7ff"
 showWidgetBorder = true
 baseRadius = "0.75rem"
@@ -13,12 +13,12 @@ headingFontWeights = [600,500,500,500,500,500]
 headingFontSizes = ["3rem", "2rem"]
 codeFont = "SpaceMono"
 codeFontSize = ".75rem"
-codeBackgroundColor = "#e4ebec"
+codeBackgroundColor = "#397f8a"
 showSidebarBorder = true
 chartCategoricalColors = ["#0a5274", "#13a2bb", "#fbbf24"]
 
 [theme.sidebar]
-backgroundColor = "#f0f0ec"
-secondaryBackgroundColor = "#ecebe3"
+backgroundColor = "#303b7a"
+secondaryBackgroundColor = "#675772"
 headingFontSizes = ["1.6rem", "1.4rem", "1.2rem"]
-dataframeHeaderBackgroundColor = "#e4e4e0"
+dataframeHeaderBackgroundColor = "#3f4672"

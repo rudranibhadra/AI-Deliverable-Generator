@@ -7,3 +7,7 @@ python-docx
 pytesseract
 Pillow
 azure-storage-blob
+anthropic
+reportlab
+pypdf
+pandas
