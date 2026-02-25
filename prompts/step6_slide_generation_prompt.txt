@@ -5,51 +5,7 @@ Based on the content below, generate a structured presentation as a JSON array o
 CONTENT:
 {content}
 
-Create 12-15 slides with the following structure:
-
-1. **Title Slide**
-   - Project title derived from problem definition
-   - Subtitle: "Technical Deliverable & Implementation Plan"
-   - Date
-
-2. **Executive Summary** (1 slide)
-   - 3-4 key highlights
-   - Value proposition
-
-3. **Problem Definition** (1-2 slides)
-   - Business problem statement
-   - Key requirements (top 5)
-
-4. **Technical Approach** (2 slides)
-   - Implementation methodology
-   - Phased approach
-   - Integration strategy
-
-5. **Architecture Overview** (2 slides)
-   - System architecture
-   - Component breakdown
-   - Data flows
-
-6. **Technology Stack** (1 slide)
-   - Frontend, backend, data, cloud
-   - Key justifications
-
-7. **Implementation Roadmap** (2-3 slides)
-   - Timeline with milestones
-   - Deliverables per phase
-   - Dependencies
-
-8. **Data Architecture** (1 slide)
-   - Key entities and relationships
-   - Data governance approach
-
-9. **Success Criteria** (1 slide)
-   - Measurable metrics
-   - Quality attributes
-
-10. **Next Steps & Recommendations** (1 slide)
-    - Immediate actions
-    - Strategic recommendations
+Create EXACTLY {slide_count} slides.
 
 Each slide MUST have this JSON structure:
 {{

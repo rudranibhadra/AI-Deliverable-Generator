@@ -331,17 +331,17 @@ class DeliverableGenerator:
             print(f"Image generation failed: {e}")
             return ""
 
-    def generate_slides(self, content):
+    def generate_slides(self, content, slide_count=12):
         """Generate presentation slides from pipeline content"""
         try:
             import json
             
-            # Convert content dict to formatted string
             content_str = json.dumps(content, indent=2)
             
             prompt = self._load_prompt(
                 "prompts/step6_slide_generation_prompt.txt",
-                content=content_str
+                content=content_str,
+                slide_count=slide_count
             )
             
             print("\n" + "="*60)

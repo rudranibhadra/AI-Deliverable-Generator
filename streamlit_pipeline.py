@@ -33,7 +33,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 st.title("🔄 AI Deliverable Generator")
-st.markdown("*Transparent 6-step deliverable generation with AI*")
+st.markdown("*Transparent 5-step deliverable generation with AI*")
 
 generator = DeliverableGenerator()
 
@@ -84,6 +84,15 @@ with st.sidebar:
         "Resource Constraints",
         "12-member team: 3 backend, 2 frontend, 2 integration specialists, 1 DevOps, 1 security architect, 2 QA, 1 product owner. Budget: $1.2M"
     )
+    
+    slide_count = st.slider(
+        "📊 Slides to generate",
+        min_value=6,
+        max_value=20,
+        value=12,
+        step=1,
+        help="Choose how many slides the AI should generate"
+    )
 
 # Main area
 if st.button("🚀 Generate Pipeline Deliverable", type="primary", use_container_width=True):
@@ -103,7 +112,7 @@ if st.button("🚀 Generate Pipeline Deliverable", type="primary", use_container
     
     try:
         # Step 1
-        status_text.text("⏳ Step 1/4: Generating Problem Requirements...")
+        status_text.text("⏳ Step 1/5: Generating Problem Requirements...")
         progress_bar.progress(10)
         
         problem_reqs = generator.generate_problem_requirements(
@@ -112,17 +121,17 @@ if st.button("🚀 Generate Pipeline Deliverable", type="primary", use_container
         progress_bar.progress(25)
         
         # Step 2
-        status_text.text("⏳ Step 2/4: Generating Technical Plan...")
+        status_text.text("⏳ Step 2/5: Generating Technical Plan...")
         technical_plan = generator.generate_technical_plan(problem_reqs)
         progress_bar.progress(50)
         
         # Step 3
-        status_text.text("⏳ Step 3/4: Generating Deliverable Plan...")
+        status_text.text("⏳ Step 3/5: Generating Deliverable Plan...")
         deliverable_plan = generator.generate_deliverable_plan(technical_plan)
         progress_bar.progress(75)
         
         # Step 4
-        status_text.text("⏳ Step 4/4: Generating Data Plan...")
+        status_text.text("⏳ Step 4/5: Generating Data Plan...")
         data_plan = generator.generate_data_plan(technical_plan)
         progress_bar.progress(90)
         
@@ -140,6 +149,10 @@ if st.button("🚀 Generate Pipeline Deliverable", type="primary", use_container
         
         progress_bar.progress(100)
         status_text.text("✅ Generation Complete!")
+        
+        st.success("Pipeline generated successfully!")
+        st.toast("🎉 Deliverable ready!", icon="✅")
+        st.snow()
         st.balloons()
         
         # Combine results
@@ -364,15 +377,15 @@ if st.session_state.get('pipeline_generated'):
     # ===========================
     # EXPORT OPTIONS
     # ===========================
-    st.markdown("## 📊 Export Options")
+    st.markdown("## ⬇️ Export Options")
     
     col1, col2, col3 = st.columns(3)
     
     with col1:
-        if st.button("📊 Generate Slide Deck", use_container_width=True):
-            with st.spinner("AI is creating your presentation slides... (~15 seconds)"):
+        if st.button("📁 Generate Slide Deck", use_container_width=True):
+            with st.spinner("AI is creating your presentation slides..."):
                 try:
-                    slides = generator.generate_slides(content)
+                    slides = generator.generate_slides(content, slide_count=slide_count)
                     
                     st.success(f"✅ Generated {len(slides)} presentation slides!")
                     
@@ -418,7 +431,7 @@ if st.session_state.get('pipeline_generated'):
 
     with col3:
         if st.button("📄 Download PDF", use_container_width=True):
-            with st.spinner("Generating PDF... (~5 seconds)"):
+            with st.spinner("Generating PDF..."):
                 try:
                     # Get the architecture diagram URL from session state
                     architecture_diagram = st.session_state.get('architecture_diagram')
